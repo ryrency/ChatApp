@@ -1,0 +1,155 @@
+syntax = "proto2";
+option optimize_for = SPEED;
+option java_package = "routing";
+
+message Route {
+
+    enum Path {
+        PING = 0;
+        NETWORK_DISCOVERY = 1;
+        USER = 2;
+        MESSAGE = 3;
+        GROUP = 4;
+        MESSAGES_REQUEST = 5;
+        MESSAGES_RESPONSE = 6;
+        HEADER = 7;
+		RESPONSE = 8;
+    }
+
+    //a node should not have a value though this is not enforced
+    required int64 id = 1;
+    required Path path = 2;
+
+    oneof payload{
+	    NetworkDiscoveryPacket networkDiscoveryPacket = 3;
+	    User user = 4;
+	    Message message = 5;
+	    Group group = 6;
+    	    MessagesRequest messagesRequest = 7;
+    	    MessagesResponse messagesResponse = 8;
+    	    Response response=9;
+    }
+    optional Header header = 10;
+}
+
+message User {
+
+    enum ActionType {
+        REGISTER = 0;
+        ACCESS = 1;
+        DELETE = 2;
+    }
+    //a node should not have a value though this is not enforced
+    required string uname = 1;
+    optional string email = 2;
+    optional string password = 3;
+    optional string recentActiveTime = 4;
+    required ActionType action = 5;
+}
+
+message Group {
+
+    enum ActionType {
+        CREATE = 0;
+        DELETE = 1;
+        ADDUSER = 2;
+    }
+    required string gname = 1;
+    optional int64 gid = 2;
+    required ActionType action = 3;
+    optional string username = 4;
+}
+
+message Message {
+
+    enum ActionType {
+        POST = 0;
+        UPDATE = 1;
+        DELETE = 2;
+    }
+
+    enum Type {
+        SINGLE = 0;
+        GROUP = 1;
+    }
+
+    enum Status {
+        ACTIVE = 0;
+        STALE = 1;
+    }
+
+    //a node should not have a value though this is not enforced
+    required Type type = 1;
+    required string senderId = 2;
+    required string payload = 3;
+    required string receiverId = 4; //would be groupId if the type is GROUP or else userId if the type is SINGLE
+    required string timestamp = 5;
+    optional Status status = 6;
+    required ActionType action = 7;
+}
+
+message MessagesRequest {
+
+    enum Type {
+        USER = 0;
+        GROUP = 1;
+    }
+
+    required Type type = 1;
+    required string id = 2; //would be groupId if the type is GROUP or else userId if the type is USER
+}
+
+message MessagesResponse {
+
+    enum Type {
+        USER = 0;
+        GROUP = 1;
+    }
+
+    required Type type = 1;
+    optional string id = 2; //would be groupId if the type is GROUP or else userId if the type is USER
+    repeated Message messages = 3;
+}
+
+message NetworkDiscoveryPacket {
+
+    enum Sender {
+        EXTERNAL_SERVER_NODE = 0;
+        INTERNAL_SERVER_NODE = 1;
+        END_USER_CLIENT = 2;
+    }
+
+    enum Mode {
+        REQUEST = 0;
+        RESPONSE = 1;
+	REMOVE_NODE = 2; // Use this mode to ask other cluster to remove one of your nodes which is not up now. Or which is not the leader now. Teams must remove the node (details in packet) from their UDP discovery data structure.
+    }
+
+    required Mode mode = 1;
+    required Sender sender = 2 [default = INTERNAL_SERVER_NODE];
+    optional string groupTag = 3; //If sender is a server node, then this field can contain its group id. If sender is end user client, then this field is not required.
+    optional string nodeId = 4; //node id of the sender
+    required string nodeAddress = 5;
+    required int64 nodePort = 6;
+    required string secret = 7;
+}
+
+message Header {
+	enum Type{
+	INTERNAL=0;
+	INTER_CLUSTER=1;
+	CLIENT=2;
+	}
+    required Type type = 1;
+}
+
+
+
+message Response{
+     required bool success=1;
+     //add error or any response which needs to be sent
+     optional string message=2;
+	
+     //not required but can be used in case we set up common codes for errors
+     optional string errorCode=3;
+}

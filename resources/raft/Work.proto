@@ -1,0 +1,24 @@
+syntax="proto2";
+
+package raft.proto;
+
+import "AppendEntries.proto";
+import "HeartBeat.proto";
+import "Vote.proto";
+import "InternalNodeAdd.proto";
+
+
+//	WorkMessage//
+
+message WorkMessage{
+
+	required int64 unixTimeStamp = 1;
+	oneof payload{ 
+	 AppendEntriesPacket appendEntriesPacket = 2;
+	 HeartBeatPacket heartBeatPacket = 3;
+	 VotePacket	voteRPCPacket =4;
+	 InternalNodeAddPacket internalNodeAddPacket = 5;
+	 	 
+	}
+
+}

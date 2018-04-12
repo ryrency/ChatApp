@@ -1,0 +1,78 @@
+syntax="proto2";
+package raft.proto;
+import "pipe.proto";
+option optimize_for = SPEED;
+
+// AppendEntries
+message AppendEntriesRequest{
+	required int32 term = 1;
+    required int32 leaderId = 2;
+    required int32 prevLogIndex = 3;
+    required int32 prevLogTerm = 4;
+    required int32 leaderCommit = 5;
+    repeated LogEntry entries = 6;
+} 
+
+message AppendEntriesResponse{
+    required int32 term = 1;
+    required bool success = 2;
+    required int32 nodeId = 3;
+    required int32 matchIndex = 4;
+}
+
+message LogEntry {
+	required int32 term = 1;
+    required int32 index = 2;
+    oneof payload{
+	 	UserPayload userPayload = 3;
+	 	MessagePayLoad messagePayload = 4;
+	 	MessageReadPayload messageReadPayload = 5;
+	}
+}
+
+// Request votes
+message VoteRequest {
+	required int32 term = 1;
+    required int32 candidateId = 2;
+    required int32 lastLogIndex = 3;
+    required int32 lastLogTerm = 4;
+}
+
+message VoteResponse {
+	required int32 term = 1;
+    required bool voteGranted = 2;
+}
+
+message ConnectionActiveAck {
+	required int32 nodeId = 1;
+}
+
+message ForwardMessageRequest{    
+    oneof payload{
+    	 	Message message = 1;
+    	 	User user = 2;
+    	 	MessageReadPayload messageReadPayload = 3;
+    	}
+}
+message InternalPacket {
+	oneof payload{
+	 	AppendEntriesRequest appendEntriesRequest = 1;
+	 	AppendEntriesResponse appendEntriesResponse = 2;
+	 	VoteRequest voteRequest = 3;
+	 	VoteResponse voteResponse = 4; 
+	 	ConnectionActiveAck connectionActiveAck = 5;
+	 	ForwardMessageRequest forwardMessageRequest = 6;
+	}
+}
+
+message UserPayload {
+	required bytes payload = 1;
+}
+
+message MessagePayLoad {
+	required bytes payload = 1;
+}
+
+message MessageReadPayload {
+	required string uname = 1;
+}

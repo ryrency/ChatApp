@@ -1,0 +1,41 @@
+syntax="proto2";
+
+package raft.proto;
+
+// RequestVote
+
+message RequestVote{
+
+    required int32 term = 1;
+    required int32 candidateId = 2;	
+    required int64 timeStampOnLatestUpdate = 3;
+}
+
+
+//	ResponseVote
+
+message ResponseVote{
+
+    required int32 term = 1;
+    required IsVoteGranted isVoteGranted = 2;
+
+
+    enum IsVoteGranted{
+	
+	    YES = 0;
+	    NO = 1;
+	
+	}
+
+}
+
+
+
+message VotePacket{
+	required int64 unixTimestamp  = 1;
+	oneof payload {
+		RequestVote requestVote = 2;
+		ResponseVote responseVote = 3;	
+}
+
+}

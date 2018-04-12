@@ -1,0 +1,60 @@
+syntax="proto2";
+
+package raft.proto;
+
+
+option optimize_for = SPEED;
+
+
+
+
+//    AppendEntries
+
+
+message AppendEntriesMsg{
+    required int32 leaderId = 1;
+    required  ClientMessage message  = 2;
+    required int32 termid = 3;
+    required string timeStampOnLatestUpdate = 4;
+}
+
+
+message ClientMessage {
+     // a node should not have a value though this is not enforced
+     required int32 type = 1;
+     required string sender = 2;
+     required string payload = 3;
+     required string to = 4; // would be groupId if the type is GROUP or else userId if the type is SINGLE
+     required string timestamp = 5;
+     required int32 status = 6;
+
+ }
+  
+//    AppendEntriesResponse
+
+message AppendEntriesResponse{
+    required IsUpdated isUpdated = 1;
+    
+    enum IsUpdated{
+    
+    YES = 0;
+    NO = 1;
+    
+    }
+}
+
+
+
+
+message AppendEntriesPacket{
+
+    required int64 unixTimeStamp = 1;
+
+    
+     oneof payload{                            
+         AppendEntriesMsg appendEntries = 2;
+         AppendEntriesResponse appendEntriesResponse = 3;        
+    } 
+
+
+}

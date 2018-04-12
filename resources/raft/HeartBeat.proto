@@ -1,0 +1,42 @@
+syntax="proto2";
+package raft.proto;
+
+// HeartBeat Request
+
+message HeartBeatMsg{
+	required int32 term = 1; 	 
+	required int32 leaderId = 2;
+	required int64 timeStampOnLatestUpdate = 3;
+}
+
+//	HeartBeatPacket//
+
+message HeartBeatPacket{
+	required int64 unixTimestamp  = 1;
+	required HeartBeatMsg heartbeat = 2;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
